@@ -1,0 +1,30 @@
+# Build output
+/target/
+**/*.rs.bk
+
+# Caches and editors
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Staging area for incoming files
+/_incoming/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.p8
+id_*

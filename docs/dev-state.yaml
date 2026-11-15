@@ -1,0 +1,162 @@
+id: dev-state
+role: memory
+version: 1
+updated: 2026-11-15
+goal:
+  id: G-001
+  name: Release OnoySan, a personal financial OS, in the App Store and Google Play
+  why: "[needs data] lever and the condition under which the goal is no longer relevant"
+  scope: "[needs data] deadline or period"
+  status: In progress
+focus: S0 Foundation — repository bootstrap, then inventory and English documentation
+waiting_on_owner:
+  - T-002 push initial main and give the agent GitHub access
+  - Q-001 Legal Documents on Google Drive
+week_plan:
+  week: 16.11.2026 – 22.11.2026
+  approved: false
+  items: [T-002, T-003, T-004, T-005, T-007]
+next_ids:
+  task: T-010
+  question: Q-002
+  adr: ADR-032
+stages:
+  - id: S0
+    name: Foundation
+    point: Repository onoysan with CLAUDE.md, CI, ruleset, dev-state and the full English document set by tier; Russian sources in archive/concept-docs-ru/, nothing project-related left on Google Drive
+    exit_criterion: Every source in archive/concept-docs-ru/ is carried into an English document or marked with a reason in the inventory; tools/check.py and CI are green on main
+    status: active
+tasks:
+  - id: T-001
+    name: Bootstrap the repository with archive, CLAUDE.md, dev-state, workflow and ADR-031
+    stage: S0
+    kind: ops
+    priority: P1
+    urgency: U1
+    status: in_progress
+    assignee: claude-code
+    blocked_by: []
+    due: 15.11.2026
+    branch: null
+    pr: null
+    next_step: Initial commit on main; push is T-002
+  - id: T-002
+    name: Push initial main and set up GitHub CLI access for the agent
+    stage: S0
+    kind: human
+    priority: P1
+    urgency: U1
+    status: todo
+    assignee: owner
+    blocked_by: [T-001]
+    due: 16.11.2026
+    branch: null
+    pr: null
+    next_step: Install gh in WSL, log in with a fine-grained token limited to ssnddsgnr/onoysan (workflow Appendix F step 3), run git push -u origin main
+  - id: T-003
+    name: Rewrite workflow for ADR-031
+    stage: S0
+    kind: doc
+    priority: P1
+    urgency: U2
+    status: todo
+    assignee: claude-code
+    blocked_by: [T-002]
+    due: 17.11.2026
+    branch: dev/T-003-workflow-adr-031
+    pr: null
+    next_step: Rewrite sections 3, 7, 8, 11, 12, 13 and Appendix G; add .claude/agents to the layout
+  - id: T-004
+    name: Create tools/check.py and the CI workflow
+    stage: S0
+    kind: code
+    priority: P1
+    urgency: U1
+    status: todo
+    assignee: claude-code
+    blocked_by: [T-002]
+    due: 17.11.2026
+    branch: dev/T-004-check-and-ci
+    pr: null
+    next_step: Implement check.py per workflow Appendix H and ci.yml per Appendix E with actions pinned to SHAs
+  - id: T-005
+    name: Configure the protect-main ruleset on GitHub
+    stage: S0
+    kind: human
+    priority: P1
+    urgency: U2
+    status: todo
+    assignee: owner
+    blocked_by: [T-004]
+    due: 18.11.2026
+    branch: null
+    pr: null
+    next_step: Apply workflow Appendix F after the check job has run once; verify the three rejections
+  - id: T-006
+    name: Delete project files from Google Drive except Legal Documents
+    stage: S0
+    kind: human
+    priority: P2
+    urgency: U3
+    status: todo
+    assignee: owner
+    blocked_by: [T-002]
+    due: 18.11.2026
+    branch: null
+    pr: null
+    next_step: Confirm archive/concept-docs-ru is visible on GitHub, then delete; keep Legal Documents until Q-001
+  - id: T-007
+    name: Create the inventory of archive/concept-docs-ru
+    stage: S0
+    kind: doc
+    priority: P1
+    urgency: U1
+    status: todo
+    assignee: claude-code
+    blocked_by: [T-002]
+    due: 18.11.2026
+    branch: dev/T-007-archive-inventory
+    pr: null
+    next_step: One record per source with date, topic, duplicates, target document or exclusion reason
+  - id: T-008
+    name: Create the documentation map by tier
+    stage: S0
+    kind: doc
+    priority: P1
+    urgency: U2
+    status: todo
+    assignee: claude-code
+    blocked_by: [T-007]
+    due: 19.11.2026
+    branch: dev/T-008-documentation-map
+    pr: null
+    next_step: List target documents per workflow 9.1 with their sources; one rewrite task per target document follows
+  - id: T-009
+    name: Translate ADR-030 into docs/decisions
+    stage: S0
+    kind: doc
+    priority: P2
+    urgency: U3
+    status: todo
+    assignee: claude-code
+    blocked_by: [T-002]
+    due: 19.11.2026
+    branch: dev/T-009-adr-030
+    pr: null
+    next_step: English ADR-030 with header; the Russian original stays in the archive
+open_questions:
+  - id: Q-001
+    question: "[needs data] What happens to Legal Documents on Google Drive: move into docs/product/legal or keep outside the repository?"
+    blocks: []
+    asked: 2026-11-15
+    answer: null
+approvals:
+  - date: 2026-11-15
+    word: согласовано
+    subject: Claude Code is the single working surface; coder, reviewer and security roles split by tool permissions; export bridge dropped
+    adr: ADR-031
+log:
+  - date: 2026-11-15
+    session: bootstrap
+    merged_prs: []
+    summary: Repository initialised; two off-product sources deleted at the owner's request; archive moved to archive/concept-docs-ru; ADR-031 accepted.
