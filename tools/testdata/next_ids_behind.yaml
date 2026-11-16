@@ -1,0 +1,83 @@
+id: dev-state
+role: memory
+version: 1
+updated: 2026-11-16
+goal:
+  id: G-001
+  name: Fixture goal
+  why: Fixture
+  scope: Fixture
+  status: In progress
+focus: Fixture
+waiting_on_owner: []
+week_plan:
+  week: 16.11.2026 – 22.11.2026
+  approved: false
+  items: [T-001, T-002]
+next_ids:
+  task: T-003
+  question: Q-002
+  adr: ADR-031
+stages:
+  - id: S0
+    name: Foundation
+    point: Fixture
+    exit_criterion: Fixture
+    status: active
+tasks:
+  - id: T-001
+    name: Do the first thing
+    stage: S0
+    kind: code
+    priority: P1
+    urgency: U1
+    status: done
+    assignee: claude-code
+    blocked_by: []
+    due: 16.11.2026
+    branch: dev/T-001-first-thing
+    pr: 1
+    next_step: none
+  - id: T-002
+    name: Do the second thing
+    stage: S0
+    kind: doc
+    priority: P2
+    urgency: U2
+    status: in_progress
+    assignee: claude-code
+    blocked_by: [T-001]
+    due: 17.11.2026 12:00
+    branch: dev/T-002-second-thing
+    pr: null
+    next_step: write it
+  - id: T-003
+    name: Ask the owner
+    stage: S0
+    kind: human
+    priority: P3
+    urgency: U3
+    status: blocked
+    assignee: owner
+    blocked_by: []
+    due: D+2
+    branch: null
+    pr: null
+    next_step: wait for Q-001
+open_questions:
+  - id: Q-001
+    question: Fixture?
+    blocks: [T-003]
+    asked: 2026-11-16
+    answer: null
+approvals:
+  - date: 2026-11-16
+    word: согласовано
+    subject: Fixture
+    adr: ADR-031
+log:
+  - date: 2026-11-16
+    session: fixture
+    merged_prs:
+      - {number: 1, title: First thing, task: T-001}
+    summary: Fixture
