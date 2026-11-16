@@ -1,0 +1,53 @@
+# ref: workflow#appendix-e
+# Action versions and SHAs checked 2026-11-16 via the GitHub API.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+  PYYAML_VERSION: 6.0.3
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: python deps
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --disable-pip-version-check "pyyaml==${PYYAML_VERSION}"
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - name: check.py tests
+        run: python3 -m unittest discover -s tools
+      - name: dev-state
+        run: python3 tools/check.py
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable branch, 2026-11-15
+        if: hashFiles('Cargo.toml') != ''
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        if: hashFiles('Cargo.toml') != ''
+      - name: format
+        if: hashFiles('Cargo.toml') != ''
+        run: cargo fmt --all --check
+      - name: lint
+        if: hashFiles('Cargo.toml') != ''
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: test
+        if: hashFiles('Cargo.toml') != ''
+        run: cargo test --workspace --all-features
+  # From S2: add a job with a PostgreSQL 16 service container that runs db/migrations and db/tests.
