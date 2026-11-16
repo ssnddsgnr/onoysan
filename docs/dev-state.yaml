@@ -1,7 +1,7 @@
 id: dev-state
 role: memory
-version: 1
-updated: 2026-11-15
+version: 2
+updated: 2026-11-16
 goal:
   id: G-001
   name: Release OnoySan, a personal financial OS, in the App Store and Google Play
@@ -10,7 +10,7 @@ goal:
   status: In progress
 focus: S0 Foundation — repository bootstrap, then inventory and English documentation
 waiting_on_owner:
-  - T-002 push initial main and give the agent GitHub access
+  - T-005 configure the protect-main ruleset after the check job has run once
   - Q-001 Legal Documents on Google Drive
 week_plan:
   week: 16.11.2026 – 22.11.2026
@@ -33,26 +33,26 @@ tasks:
     kind: ops
     priority: P1
     urgency: U1
-    status: in_progress
+    status: done
     assignee: claude-code
     blocked_by: []
     due: 15.11.2026
     branch: null
     pr: null
-    next_step: Initial commit on main; push is T-002
+    next_step: Done; initial commit 79844d6 on main
   - id: T-002
     name: Push initial main and set up GitHub CLI access for the agent
     stage: S0
     kind: human
     priority: P1
     urgency: U1
-    status: todo
+    status: done
     assignee: owner
     blocked_by: [T-001]
     due: 16.11.2026
     branch: null
     pr: null
-    next_step: Install gh in WSL, log in with a fine-grained token limited to ssnddsgnr/onoysan (workflow Appendix F step 3), run git push -u origin main
+    next_step: Done; owner pushed 79844d6 to main on 2026-11-16
   - id: T-003
     name: Rewrite workflow for ADR-031
     stage: S0
@@ -72,13 +72,13 @@ tasks:
     kind: code
     priority: P1
     urgency: U1
-    status: todo
+    status: review
     assignee: claude-code
     blocked_by: [T-002]
     due: 17.11.2026
     branch: dev/T-004-check-and-ci
     pr: null
-    next_step: Implement check.py per workflow Appendix H and ci.yml per Appendix E with actions pinned to SHAs
+    next_step: Review the PR; merge after CI is green
   - id: T-005
     name: Configure the protect-main ruleset on GitHub
     stage: S0
@@ -160,3 +160,7 @@ log:
     session: bootstrap
     merged_prs: []
     summary: Repository initialised; two off-product sources deleted at the owner's request; archive moved to archive/concept-docs-ru; ADR-031 accepted.
+  - date: 2026-11-16
+    session: check-and-ci
+    merged_prs: []
+    summary: Owner pushed main (T-002). T-004 adds tools/check.py with tests, the CI workflow and .gitattributes; PR in review.
