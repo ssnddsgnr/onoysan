@@ -124,6 +124,19 @@ class Checker:
                 ok = False
         return ok
 
+    def _ids(self, where: str, key: str, value: object) -> list[str]:
+        """Return the string items of a list of ids; report anything else."""
+        if not isinstance(value, list):
+            self.err(where, f"{key} must be a list")
+            return []
+        good = []
+        for item in value:
+            if isinstance(item, str):
+                good.append(item)
+            else:
+                self.err(where, f"{key} item {item!r} is not an id")
+        return good
+
     def _list(self, key: str) -> list:
         value = self.data.get(key)
         if value is None:
@@ -134,7 +147,7 @@ class Checker:
         return value
 
     def _enum(self, where: str, key: str, value: object, allowed: set[str]) -> None:
-        if value not in allowed:
+        if not isinstance(value, str) or value not in allowed:
             self.err(where, f"{key} {value!r} is not one of {sorted(allowed)}")
 
     # -- sections -----------------------------------------------------------
@@ -178,6 +191,7 @@ class Checker:
             sid = stage["id"]
             if not isinstance(sid, str) or not RE_STAGE.match(sid):
                 self.err(where, "id is not S<n>")
+                continue
             if sid in stages:
                 self.err(where, "duplicate id")
             stages[sid] = stage
@@ -193,19 +207,18 @@ class Checker:
             tid = task["id"]
             if _num(RE_TASK, tid) is None:
                 self.err(where, "id is not T-NNN")
+                continue
             if tid in tasks:
                 self.err(where, "duplicate id")
             tasks[tid] = task
-            if task["stage"] not in stages:
+            if not isinstance(task["stage"], str) or task["stage"] not in stages:
                 self.err(where, f"stage {task['stage']!r} does not exist")
             self._enum(where, "kind", task["kind"], KINDS)
             self._enum(where, "priority", task["priority"], PRIORITIES)
             self._enum(where, "urgency", task["urgency"], URGENCIES)
             self._enum(where, "status", task["status"], TASK_STATUSES)
             self._enum(where, "assignee", task["assignee"], ASSIGNEES)
-            if not isinstance(task["blocked_by"], list):
-                self.err(where, "blocked_by must be a list")
-                task["blocked_by"] = []
+            task["blocked_by"] = self._ids(where, "blocked_by", task["blocked_by"])
             due = task["due"]
             if not isinstance(due, str) or not (_dmy(due) or RE_DUE_REL.match(due)):
                 self.err(where, f"due {due!r} is not DD.MM.YYYY, DD.MM.YYYY HH:MM or D+N")
@@ -234,14 +247,13 @@ class Checker:
             qid = q["id"]
             if _num(RE_QUESTION, qid) is None:
                 self.err(where, "id is not Q-NNN")
+                continue
             if qid in questions:
                 self.err(where, "duplicate id")
             questions[qid] = q
             if not _iso_date(q["asked"]):
                 self.err(where, f"asked {q['asked']!r} is not YYYY-MM-DD")
-            blocks = q["blocks"] if isinstance(q["blocks"], list) else []
-            if not isinstance(q["blocks"], list):
-                self.err(where, "blocks must be a list")
+            q["blocks"] = blocks = self._ids(where, "blocks", q["blocks"])
             for tid in blocks:
                 if tid not in tasks:
                     self.err(where, f"blocks {tid!r} which does not exist")
@@ -264,8 +276,7 @@ class Checker:
             if n >= 2 and tasks[b]["urgency"] not in ("U1", "U2"):
                 self.err(b, f"blocks {n} tasks but urgency is {tasks[b]['urgency']}, needs U1 or U2")
         question_blocks = {
-            t for q in questions.values() if q.get("answer") is None
-            for t in (q["blocks"] if isinstance(q["blocks"], list) else [])
+            t for q in questions.values() if q.get("answer") is None for t in q["blocks"]
         }
         for tid, task in tasks.items():
             if task["status"] == "blocked" and not task["blocked_by"] and tid not in question_blocks:
@@ -307,7 +318,7 @@ class Checker:
             self.err("week_plan", f"week {wp['week']!r} is not DD.MM.YYYY – DD.MM.YYYY")
         if not isinstance(wp["approved"], bool):
             self.err("week_plan", "approved must be true or false")
-        for tid in wp["items"] if isinstance(wp["items"], list) else []:
+        for tid in self._ids("week_plan", "items", wp["items"]):
             if tid not in tasks:
                 self.err("week_plan", f"item {tid!r} does not exist")
 
@@ -354,7 +365,7 @@ class Checker:
                 continue
             for j, pr in enumerate(prs):
                 pw = f"{where}.merged_prs[{j}]"
-                if self._keys(pr, MERGED_PR_KEYS, pw) and pr["task"] not in tasks:
+                if self._keys(pr, MERGED_PR_KEYS, pw) and (not isinstance(pr["task"], str) or pr["task"] not in tasks):
                     self.err(pw, f"task {pr['task']!r} does not exist")
 
     def check_next_ids(self, tasks: dict, questions: dict, adrs: dict) -> None:
@@ -378,8 +389,12 @@ class Checker:
     # -- git ----------------------------------------------------------------
 
     def check_branches(self, branches: list[str]) -> list[str]:
-        tasks = {t["id"]: t for t in self.data.get("tasks") or [] if isinstance(t, dict) and "id" in t}
-        nxt = _num(RE_TASK, (self.data.get("next_ids") or {}).get("task"))
+        tasks = {
+            t["id"]: t for t in self.data.get("tasks") or []
+            if isinstance(t, dict) and isinstance(t.get("id"), str)
+        }
+        ids = self.data.get("next_ids")
+        nxt = _num(RE_TASK, ids.get("task")) if isinstance(ids, dict) else None
         for name in branches:
             m = RE_GIT_BRANCH.match(name.strip())
             if not m:

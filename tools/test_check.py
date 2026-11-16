@@ -59,6 +59,13 @@ class FixtureTests(unittest.TestCase):
     def test_branch_task_mismatch(self) -> None:
         self.assertTrue(has(errors("branch_mismatch.yaml"), "T-002", "belongs to T-001"))
 
+    def test_unhashable_values(self) -> None:
+        errs = errors("unhashable_values.yaml")
+        self.assertTrue(has(errs, "T-002", "kind ['doc', 'code']"))
+        self.assertTrue(has(errs, "T-002", "blocked_by item {'id': 'T-003'} is not an id"))
+        code, _ = run_main("--file", str(DATA / "unhashable_values.yaml"), "--decisions", str(DECISIONS))
+        self.assertEqual(code, 1)
+
 
 class GitBranchTests(unittest.TestCase):
     def checker(self) -> check.Checker:
