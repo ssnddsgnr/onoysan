@@ -77,8 +77,8 @@ tasks:
     blocked_by: [T-002]
     due: 17.11.2026
     branch: dev/T-004-check-and-ci
-    pr: null
-    next_step: Review the PR; merge after CI is green
+    pr: 1
+    next_step: Review PR 1 (CI green); merge after review
   - id: T-005
     name: Configure the protect-main ruleset on GitHub
     stage: S0
